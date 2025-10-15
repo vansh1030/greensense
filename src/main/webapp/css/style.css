@@ -149,6 +149,79 @@ body {
     margin-top: 40px;
 }
 
+/* --- Dashboard Styles --- */
+.welcome-header {
+    color: var(--accent);
+    font-weight: 700;
+}
+.stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.stat-card .icon {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+.stat-card h2 {
+    color: #e2e8f0;
+    font-weight: 700;
+    margin: 0;
+}
+.stat-card p {
+    color: var(--muted);
+    margin: 5px 0 0 0;
+    font-size: 0.9rem;
+}
+.card-custom {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.section-title {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.complaint-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.complaint-table th, .complaint-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.complaint-table th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+    font-weight: 600;
+}
+.complaint-table td {
+    color: #e2e8f0;
+}
+.btn-main-action {
+    background: var(--accent);
+    border: none;
+    color: #281e18;
+    font-weight: 600;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    transition: 0.3s;
+}
+.btn-main-action:hover {
+    background: linear-gradient(90deg, var(--accent), var(--secondary));
+}
+
 /* --- Login/Register Overlays --- */
 .overlay {
     position: fixed;

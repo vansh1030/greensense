@@ -63,7 +63,7 @@ public class RegistrationServlet extends HttpServlet {
         boolean success = userDAO.addUser(newUser);
 
         if (success) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("index.jsp?login=true");
         } else {
             response.getWriter().println("Registration failed! The email might already be in use.");
         }

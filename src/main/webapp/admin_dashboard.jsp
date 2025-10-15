@@ -9,6 +9,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
+    <script>
+        function editRoute(routeId, truckId, source, destination, status) {
+            document.getElementById('editRouteId').value = routeId;
+            document.getElementById('editTruckId').value = truckId;
+            document.getElementById('editSource').value = source;
+            document.getElementById('editDestination').value = destination;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editForm').style.display = 'block';
+        }
+        function cancelEdit() {
+            document.getElementById('editForm').style.display = 'none';
+        }
+    </script>
 </head>
 <body>
 
@@ -34,23 +47,39 @@
                         </div>
                     </div>
                     <table class="complaint-table">
-                        <thead><tr><th>ID</th><th>Citizen</th><th>Description</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Complaint No.</th><th>Date & Time</th><th>Citizen</th><th>Category</th><th>Location</th><th>Description</th><th>Status</th></tr></thead>
                         <tbody>
                             <c:forEach var="complaint" items="${complaints}">
                                 <tr>
                                     <td>#${complaint.id}</td>
+                                    <td>${complaint.submittedAt}</td>
                                     <td>${complaint.citizenFullName}</td>
+                                    <td>${complaint.category}</td>
+                                    <td>${complaint.latitude}, ${complaint.longitude}</td>
                                     <td>${complaint.description}</td>
                                     <td>
-                                        <form action="${pageContext.request.contextPath}/updateStatus" method="post">
-                                            <input type="hidden" name="complaintId" value="${complaint.id}">
-                                            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                                                <option value="submitted" ${complaint.status == 'submitted' ? 'selected' : ''}>Submitted</option>
-                                                <option value="in_progress" ${complaint.status == 'in_progress' ? 'selected' : ''}>In Progress</option>
-                                                <option value="resolved" ${complaint.status == 'resolved' ? 'selected' : ''}>Resolved</option>
-                                            </select>
-                                        </form>
+                                        <c:if test="${complaint.status != 'resolved'}">
+                                            <form action="${pageContext.request.contextPath}/updateStatus" method="post" enctype="multipart/form-data">
+                                                <input type="hidden" name="complaintId" value="${complaint.id}">
+                                                <select name="status" class="form-select form-select-sm" onchange="if(this.value=='resolved'){document.getElementById('imageUpload${complaint.id}').style.display='block';}else{this.form.submit();}">
+                                                    <option value="unresolved" ${complaint.status == 'unresolved' ? 'selected' : ''}>Unresolved</option>
+                                                    <option value="in_progress" ${complaint.status == 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                                    <option value="resolved" ${complaint.status == 'resolved' ? 'selected' : ''}>Resolved</option>
+                                                </select>
+                                                <div id="imageUpload${complaint.id}" style="display:none; margin-top:5px;">
+                                                    <input type="file" name="resolutionImage" accept="image/*" required>
+                                                    <button type="submit" class="btn btn-sm btn-success mt-1">Resolve</button>
+                                                </div>
+                                            </form>
+                                        </c:if>
+                                        <c:if test="${complaint.status == 'resolved'}">
+                                            Resolved
+                                            <c:if test="${not empty complaint.imagePath}">
+                                                <br><small><a href="${pageContext.request.contextPath}/images/${complaint.imagePath}" target="_blank">View Image</a></small>
+                                            </c:if>
+                                        </c:if>
                                     </td>
+
                                 </tr>
                             </c:forEach>
                         </tbody>
@@ -60,13 +89,38 @@
 
             <div class="col-lg-4">
                  <div class="card-custom mb-4">
-                    <h4 class="section-title">Live Truck Routes</h4>
-                    <c:forEach var="route" items="${truckRoutes}">
-                        <div class="mb-2">
-                            <strong>Truck #${route.truckId}</strong> (${route.status})<br>
-                            <small class="text-muted">${route.sourceLocation} to ${route.destinationLocation}</small>
-                        </div>
-                    </c:forEach>
+                    <h4 class="section-title">Truck Management</h4>
+                    <table class="table table-sm">
+                        <thead><tr><th>ID</th><th>Source</th><th>Destination</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <c:forEach var="route" items="${truckRoutes}">
+                                <tr>
+                                    <td>${route.truckId}</td>
+                                    <td>${route.sourceLocation}</td>
+                                    <td>${route.destinationLocation}</td>
+                                    <td>${route.status}</td>
+                                    <td><button class="btn btn-sm btn-primary" onclick="editRoute(${route.routeId}, ${route.truckId}, '${route.sourceLocation}', '${route.destinationLocation}', '${route.status}')">Edit</button></td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    <div id="editForm" style="display:none;">
+                        <form action="${pageContext.request.contextPath}/updateTruckRoute" method="post">
+                            <input type="hidden" id="editRouteId" name="routeId">
+                            <div class="mb-2"><input type="text" id="editTruckId" name="truckId" class="form-control" placeholder="Truck ID" required></div>
+                            <div class="mb-2"><input type="text" id="editSource" name="source" class="form-control" placeholder="Source" required></div>
+                            <div class="mb-2"><input type="text" id="editDestination" name="destination" class="form-control" placeholder="Destination" required></div>
+                            <div class="mb-2">
+                                <select id="editStatus" name="status" class="form-select" required>
+                                    <option value="scheduled">Scheduled</option>
+                                    <option value="in_transit">In Transit</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-sm">Update</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit()">Cancel</button>
+                        </form>
+                    </div>
                  </div>
 
                  <div class="card-custom mb-4">

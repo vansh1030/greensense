@@ -11,7 +11,7 @@ import java.util.List;
 public class ComplaintDAO {
 
     public boolean addComplaint(Complaint complaint) {
-        String sql = "INSERT INTO complaints (citizen_id, description, category, image_path, latitude, longitude, status) VALUES (?, ?, ?, ?, ?, ?, 'submitted')";
+        String sql = "INSERT INTO complaints (citizen_id, description, category, image_path, latitude, longitude, status) VALUES (?, ?, ?, ?, ?, ?, 'unresolved')";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -67,6 +67,22 @@ public class ComplaintDAO {
             return false;
         }
     }
+
+    public boolean updateComplaintStatusWithImage(int complaintId, String status, String imagePath) {
+        String sql = "UPDATE complaints SET status = ?, image_path = ? WHERE complaint_id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, status);
+            pstmt.setString(2, imagePath);
+            pstmt.setInt(3, complaintId);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public int getResolvedComplaintsCount() {
         String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'resolved'";
         try (Connection conn = DBUtil.getConnection();
@@ -85,7 +101,7 @@ public class ComplaintDAO {
         String sql;
         // Special case for "unresolved" which includes two statuses
         if ("unresolved".equalsIgnoreCase(status)) {
-            sql = "SELECT c.*, u.full_name FROM complaints c JOIN users u ON c.citizen_id = u.user_id WHERE c.status IN ('submitted', 'in_progress') ORDER BY c.submitted_at DESC";
+            sql = "SELECT c.*, u.full_name FROM complaints c JOIN users u ON c.citizen_id = u.user_id WHERE c.status IN ('unresolved', 'in_progress') ORDER BY c.submitted_at DESC";
         } else {
             sql = "SELECT c.*, u.full_name FROM complaints c JOIN users u ON c.citizen_id = u.user_id WHERE c.status = ? ORDER BY c.submitted_at DESC";
         }
@@ -99,7 +115,21 @@ public class ComplaintDAO {
 
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                // ... create and add complaint objects to list (same as getAllComplaints)
+                int id = rs.getInt("complaint_id");
+                String description = rs.getString("description");
+                String imagePath = rs.getString("image_path");
+                String complaintStatus = rs.getString("status");
+                Timestamp submittedAt = rs.getTimestamp("submitted_at");
+                String citizenName = rs.getString("full_name");
+                String category = rs.getString("category");
+                double latitude = rs.getDouble("latitude");
+                double longitude = rs.getDouble("longitude");
+
+                Complaint complaint = new Complaint(id, description, imagePath, complaintStatus, submittedAt, citizenName);
+                complaint.setCategory(category);
+                complaint.setLatitude(latitude);
+                complaint.setLongitude(longitude);
+                complaintList.add(complaint);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -151,7 +181,7 @@ public class ComplaintDAO {
         String sql = "SELECT " +
                      "COUNT(*) as total, " +
                      "SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) as resolved, " +
-                     "SUM(CASE WHEN status IN ('submitted', 'in_progress') THEN 1 ELSE 0 END) as pending " +
+                     "SUM(CASE WHEN status IN ('unresolved', 'in_progress') THEN 1 ELSE 0 END) as pending " +
                      "FROM complaints WHERE citizen_id = ?";
 
         try (Connection conn = DBUtil.getConnection();

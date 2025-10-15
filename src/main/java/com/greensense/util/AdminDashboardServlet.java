@@ -29,17 +29,22 @@ public class AdminDashboardServlet extends HttpServlet {
         }
         List<Complaint> complaints = complaintDAO.getComplaintsByStatus(statusFilter);
         
-        int pendingCount = complaintDAO.getComplaintCountByStatus("submitted");
+        int unresolvedCount = complaintDAO.getComplaintCountByStatus("unresolved");
         int inProgressCount = complaintDAO.getComplaintCountByStatus("in_progress");
         int resolvedCount = complaintDAO.getComplaintCountByStatus("resolved");
         
+        // Fetch truck routes
+        TruckDAO truckDAO = new TruckDAO();
+        List<TruckRoute> truckRoutes = truckDAO.getAllRoutes();
+
         // --- Send all data to the JSP ---
         request.setAttribute("complaints", complaints);
-        request.setAttribute("pendingCount", pendingCount);
+        request.setAttribute("pendingCount", unresolvedCount);
         request.setAttribute("inProgressCount", inProgressCount);
         request.setAttribute("resolvedCount", resolvedCount);
         request.setAttribute("activeFilter", statusFilter);
-        
+        request.setAttribute("truckRoutes", truckRoutes);
+
         RequestDispatcher dispatcher = request.getRequestDispatcher("admin_dashboard.jsp");
         dispatcher.forward(request, response);
     }

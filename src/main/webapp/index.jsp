@@ -102,6 +102,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log("DOM is loaded. Attaching events."); // Test message 2
 
+            // Check URL parameters for login trigger
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('login') === 'true') {
+                const loginOverlay = document.getElementById('loginOverlay');
+                if (loginOverlay) {
+                    loginOverlay.classList.add('active');
+                }
+            }
+
             // --- Hero Slider ---
             const slides = document.querySelectorAll('.hero-slide');
             let current = 0;
@@ -136,7 +145,7 @@
             if (openRegisterBtn) openRegisterBtn.addEventListener('click', openRegister);
             if (reportBtn) reportBtn.addEventListener('click', openLogin);
             if (closeRegisterBtn) closeRegisterBtn.addEventListener('click', closeRegister);
-            
+
             if (openLoginBtn) openLoginBtn.addEventListener('click', openLogin);
             if (closeLoginBtn) closeLoginBtn.addEventListener('click', closeLogin);
 

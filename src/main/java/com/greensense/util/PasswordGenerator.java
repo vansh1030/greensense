@@ -6,7 +6,7 @@ public class PasswordGenerator {
 
     public static void main(String[] args) {
         // --- STEP 1: Enter your desired password here ---
-        String myPassword = "admin123"; 
+        String myPassword = "citizen123";
 
         // --- STEP 2: The code below will generate the hash ---
         String hashedPassword = BCrypt.hashpw(myPassword, BCrypt.gensalt());

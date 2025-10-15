@@ -23,10 +23,13 @@ CREATE TABLE IF NOT EXISTS complaints (
     image_path VARCHAR(500),
     latitude DOUBLE,
     longitude DOUBLE,
-    status ENUM('submitted', 'in_progress', 'resolved') DEFAULT 'submitted',
+    status ENUM('unresolved', 'in_progress', 'resolved') DEFAULT 'unresolved',
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (citizen_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
+
+-- Update existing 'submitted' status to 'unresolved' for migration
+UPDATE complaints SET status = 'unresolved' WHERE status = 'submitted';
 
 -- Create updates table
 CREATE TABLE IF NOT EXISTS updates (
@@ -72,15 +75,15 @@ CREATE TABLE IF NOT EXISTS truck_locations (
 -- Insert sample admin user (password is hashed using BCrypt)
 -- Password for admin is 'admin123' (hashed)
 INSERT INTO users (full_name, email, password, role) VALUES
-('Admin User', 'admin@greensense.com', '$2a$10$example.hash.here', 'admin');
+('Admin User', 'admin@greensense.com', '$2a$10$J7HQR9/yo3hMGVno9NXYJOZkjGIaFgR4Oulj9A93FjPIHmS8ymUc6', 'admin');
 
 -- Insert sample citizen user (password is 'citizen123' hashed)
 INSERT INTO users (full_name, email, password, role) VALUES
-('John Citizen', 'john@example.com', '$2a$10$example.hash.here', 'citizen');
+('John Citizen', 'john@example.com', '$2a$10$LfGIUhyc0l3UPeCTvIDEfuBwwQfXv6cDMGjGh6QeZ80qpjzC4Mkl2', 'citizen');
 
 -- Insert sample complaints
 INSERT INTO complaints (citizen_id, description, category, latitude, longitude, status) VALUES
-(2, 'Garbage not collected for 3 days', 'Waste Collection', 28.6139, 77.2090, 'submitted'),
+(2, 'Garbage not collected for 3 days', 'Waste Collection', 28.6139, 77.2090, 'unresolved'),
 (2, 'Illegal dumping near park', 'Illegal Dumping', 28.7041, 77.1025, 'in_progress');
 
 -- Insert sample updates
