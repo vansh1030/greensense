@@ -43,7 +43,7 @@
                         <h4 class="section-title mb-0">Complaint Management</h4>
                         <div>
                             <a href="${pageContext.request.contextPath}/dashboard?status=unresolved" class="btn btn-sm ${activeFilter == 'unresolved' ? 'btn-success' : 'btn-secondary'}">Unresolved</a>
-                            <a href="${pageContext.request.contextPath}/dashboard?status=resolved" class="btn btn-sm ${activeFilter == 'resolved' ? 'btn-secondary' : 'btn-success'}">Resolved</a>
+                            <a href="${pageContext.request.contextPath}/dashboard?status=resolved" class="btn btn-sm ${activeFilter == 'resolved' ? 'btn-success' : 'btn-secondary'}">Resolved</a>
                         </div>
                     </div>
                     <table class="complaint-table">
